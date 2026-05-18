@@ -1,4 +1,5 @@
 import os.path
+from pathlib import Path
 
 _base_ = [
     # '../_base_/models/faster_rcnn_r50_fpn.py',
@@ -12,18 +13,28 @@ _base_ = [
 modality = 'lwir'
 load_RGBT = True
 
-# server configuration
-server = '3060'
-# check server
-assert server in ['2070', '3060', '3090']
-if server == '3060':
-    data_root = '/home/yuyu/Code/MachineLearning/TFDet/datasets/kaist/zx-sanitized-kaist-keepPerson-fillNonPerson/coco_format'
-elif server == '2070':
-    data_root = '/home/ivlab/new_home/zx/cross-modality-det/datasets/KAIST-Sanitized/coco_format'
-elif server == '3090':
-    data_root = '/home/zx/cross-modality-det/datasets/zx-sanitized-kaist-keepPerson-fillNonPerson/coco_format'
-    # data_root = '/home/zx/cross-modality-det/datasets/coco_format'
-assert os.path.isdir(data_root)
+def _resolve_project_root():
+    """Find the TFDet project root from the current working directory.
+
+    MMDetection loads configs through a temporary copy, so __file__ points to a
+    temp path during Config.fromfile(). Using the process working directory is
+    therefore the stable way to locate the repo in this project.
+    """
+
+    cwd = Path.cwd().resolve()
+    candidates = [cwd, cwd.parent, cwd.parent.parent]
+    dataset_rel = Path(
+        'datasets/kaist/zx-sanitized-kaist-keepPerson-fillNonPerson/coco_format')
+    for root in candidates:
+        if (root / dataset_rel).is_dir() and (root / 'mmdetection').is_dir():
+            return root
+    raise FileNotFoundError(
+        f'Unable to locate TFDet project root from cwd={cwd}')
+
+
+project_root = _resolve_project_root()
+data_root = project_root / 'datasets/kaist/zx-sanitized-kaist-keepPerson-fillNonPerson/coco_format'
+assert data_root.is_dir()
 
 # load_from = 'checkpoints/faster_rcnn_r50_fpn_1x_coco_20200130-047c8118.pth'
 
@@ -245,23 +256,23 @@ data = dict(
     workers_per_gpu=8,
     train=dict(
         type=dataset_type,
-        ann_file=f'{data_root}/{modality}_train.json',
+        ann_file=str(data_root / f'{modality}_train.json'),
         classes=classes,
-        img_prefix='/home/yuyu/Code/MachineLearning/TFDet/datasets/kaist/zx-sanitized-kaist-keepPerson-fillNonPerson',
+        img_prefix=str(project_root / 'datasets/kaist/zx-sanitized-kaist-keepPerson-fillNonPerson'),
         pipeline=train_pipeline,
         filter_empty_gt=False),
     val=dict(
         type=dataset_type,
-        ann_file=f'{data_root}/{modality}_test.json',
+        ann_file=str(data_root / f'{modality}_test.json'),
         classes=classes,
-        img_prefix='/home/yuyu/Code/MachineLearning/TFDet/datasets/kaist/zx-sanitized-kaist-keepPerson-fillNonPerson',
+        img_prefix=str(project_root / 'datasets/kaist/zx-sanitized-kaist-keepPerson-fillNonPerson'),
         pipeline=test_pipeline,
         filter_empty_gt=False),
     test=dict(
         type=dataset_type,
-        ann_file=f'{data_root}/{modality}_test.json',
+        ann_file=str(data_root / f'{modality}_test.json'),
         classes=classes,
-        img_prefix='/home/yuyu/Code/MachineLearning/TFDet/datasets/kaist/zx-sanitized-kaist-keepPerson-fillNonPerson',
+        img_prefix=str(project_root / 'datasets/kaist/zx-sanitized-kaist-keepPerson-fillNonPerson'),
         pipeline=test_pipeline,
         filter_empty_gt=False))
 evaluation = dict(interval=1, metric='bbox', classwise=True)

@@ -1,6 +1,7 @@
 import copy
 import os
 import shutil
+from pathlib import Path
 
 import torchvision.ops
 import torch
@@ -15,9 +16,25 @@ from mmcv import Config
 import os.path as osp
 from glob import glob
 
-cfg = Config.fromfile('../configs/faster_rcnn/faster_rcnn_vgg16_fpn_sanitized-kaist_v5.py')
+def _resolve_project_root():
+    """Locate the TFDet repo root from the current working directory."""
+
+    cwd = Path.cwd().resolve()
+    candidates = [cwd, cwd.parent, cwd.parent.parent]
+    dataset_rel = Path(
+        'datasets/kaist/zx-sanitized-kaist-keepPerson-fillNonPerson/coco_format')
+    for root in candidates:
+        if (root / dataset_rel).is_dir() and (root / 'mmdetection').is_dir():
+            return root
+    raise FileNotFoundError(
+        f'Unable to locate TFDet project root from cwd={cwd}')
+
+
+project_root = _resolve_project_root()
+mmdet_root = project_root / 'mmdetection'
+cfg = Config.fromfile(str(mmdet_root / 'configs/faster_rcnn/faster_rcnn_vgg16_fpn_sanitized-kaist_v5.py'))
 show_epoch = not 'epoch_3.pth'
-pkl_root = '../runs/FasterRCNN_vgg16_channelRelation_dscSEFusion_similarityMax_1'
+pkl_root = mmdet_root / 'runs/FasterRCNN_vgg16_channelRelation_dscSEFusion_similarityMax_1'
 score_thres = 0.0
 aspect_ratio_thres = 1.0
 start_epoch = 3
@@ -36,18 +53,18 @@ test_vidId[10] = [0, 1]
 test_vidId[11] = [0, 1]
 
 # init detection results
-out_dir = osp.join(pkl_root, 'epoch_')
+out_dir = osp.join(str(pkl_root), 'epoch_')
 if osp.isdir(out_dir):
     shutil.rmtree(out_dir)
 os.makedirs(out_dir, exist_ok=True)
-test_names = sorted(glob(osp.join('/home/yuyu/Code/MachineLearning/TFDet/datasets/kaist/zx-sanitized-kaist-keepPerson-fillNonPerson/images/test_lwir', '*.png')))
+test_names = sorted(glob(osp.join(str(project_root / 'datasets/kaist/zx-sanitized-kaist-keepPerson-fillNonPerson/images/test_lwir'), '*.png')))
 # test_names = sorted(glob(osp.join('/home/zx/cross-modality-det/datasets/test_images/lwir/test', '*.jpg')))
 
-for epo in range(start_epoch, min(end_epoch+1, 130, start_epoch+len(glob(osp.join(pkl_root, '*.pkl'))))):
+for epo in range(start_epoch, min(end_epoch+1, 130, start_epoch+len(glob(osp.join(str(pkl_root), '*.pkl'))))):
     if show_epoch==f'epoch_{epo}.pth':
         cv2.namedWindow('detected bboxes')
     print('-'*100)
-    pkl_file = osp.join(pkl_root, f'epoch_{epo}.pkl')
+    pkl_file = osp.join(str(pkl_root), f'epoch_{epo}.pkl')
     with open(pkl_file, 'rb') as f:
         det_bboxes = pickle.load(f)
     # test_mode表示是否过滤没有标注GT的图片，True表示不过滤，False表示过滤。
@@ -68,11 +85,16 @@ for epo in range(start_epoch, min(end_epoch+1, 130, start_epoch+len(glob(osp.joi
         save_img_ids = []
         tmp_count = 0
         for info, bboxes1img in zip(data_infos, det_bboxes,):
-            sid = int(osp.basename(info['filename']).split('_', 1)[0].split('set')[-1])
+            info_filename = info['filename']
+            if not osp.isabs(info_filename):
+                info_filename = osp.join(cfg.data.test.img_prefix, info_filename)
+            info_filename = osp.realpath(info_filename)
+
+            sid = int(osp.basename(info_filename).split('_', 1)[0].split('set')[-1])
             if sid not in setId:
                 continue
             tmp_count+=1
-            img_id = name2id_map[info['filename']]
+            img_id = name2id_map[info_filename]
             assert img_id == tmp_count
 
             person_bbox = (bboxes1img[0]).copy()
@@ -87,7 +109,7 @@ for epo in range(start_epoch, min(end_epoch+1, 130, start_epoch+len(glob(osp.joi
                 continue
 
             if show_epoch==f'epoch_{epo}.pth':
-                img = cv2.imread(info['filename'])
+                img = cv2.imread(info_filename)
                 for box_id, box in enumerate(person_bbox):
                     cv2.rectangle(img, (int(box[0]), int(box[1])), (int(box[2]+box[0]), int(box[3]+box[1])), (255, 255, 0), 1)
                 cv2.imshow('detected bboxes', img)
@@ -107,19 +129,15 @@ for epo in range(start_epoch, min(end_epoch+1, 130, start_epoch+len(glob(osp.joi
 
 
 from mr_evaluation_script.evaluation_script import evaluate
-annFile = '/home/yuyu/Code/MachineLearning/TFDet/mmdetection/mr_evaluation_script/KAIST_annotation.json'
+annFile = str(mmdet_root / 'mr_evaluation_script/KAIST_annotation.json')
 phase = "Multispectral"
 results = []
-for epo in range(start_epoch, min(end_epoch+1, 130, start_epoch+len(glob(osp.join(pkl_root, '*.pkl'))))):
+for epo in range(start_epoch, min(end_epoch+1, 130, start_epoch+len(glob(osp.join(str(pkl_root), '*.pkl'))))):
     rstFile = osp.join(out_dir, f'epoch_{epo}-test-all.txt')
     print('-'*100)
     results.append(evaluate(annFile, rstFile, phase))
     print(f'epoch {epo}')
     print('^' * 100)
-
-
-
-
 
 
 
