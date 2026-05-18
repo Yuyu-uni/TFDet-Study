@@ -9,6 +9,7 @@
 <div align='left'>
 <img src='/misc/fusionMethodAndFeatureComparison.png' />
 </div>
+> 本项目基于 TFDet (https://github.com/XueZ-phd/TFDet) 修改，遵循 Apache 2.0 License。
 
 **This is the official repository for our paper "TFDet: Target-aware Fusion for RGB-T Pedestrian Detection" (<u>[arxiv paper link](https://arxiv.org/abs/2305.16580)</u>).**
 
@@ -94,7 +95,7 @@ In our environment, we use:
 	torchvision==0.11.2+cu111
 	mmcv==1.6.0
 	mmdet==2.24.1
-	 
+
 
 ### Dataset
 - Please download the KAIST dataset and checkpoint from the above cloud link, and save them following the structure shown in the **[Dataset and Models](#1)** section.
@@ -108,7 +109,7 @@ Since the KAIST dataset is evaluated by the `log-average miss rate` metric, we s
 We should first run the ``tools/test.py`` to generate the detection results.
 	
 	cd mmdetection
-
+	
 	# generate detection result in pkl format
 	python tools/test.py configs/faster_rcnn/faster_rcnn_vgg16_fpn_sanitized-kaist_v5.py runs/FasterRCNN_vgg16_channelRelation_dscSEFusion_similarityMax_1/epoch_3.pth --work-dir runs/FasterRCNN_vgg16_channelRelation_dscSEFusion_similarityMax_1 --gpu-id 7 --eval bbox --out runs/FasterRCNN_vgg16_channelRelation_dscSEFusion_similarityMax_1/epoch_3.pkl
 
@@ -122,9 +123,9 @@ A few minutes later, you will obtain one pkl file named ``runs/FasterRCNN_vgg16_
 Then, you will obtain a folder ``runs/FasterRCNN_vgg16_channelRelation_dscSEFusion_similarityMax_1/epoch_``, which includes ``epoch_3-test-all.txt``, ``epoch_3-test-day.txt``, ``epoch_3-test-night.txt``. Meanwhile, we use the python code provided by [MLPD](https://github.com/sejong-rcv/MLPD-Multi-Label-Pedestrian-Detection/tree/main/evaluation_script) to compute the ``log-average miss rate``, and get a state-of-the-art performance: ``MR_all: 4.37, MR_day: 5.08, and MR_night: 3.36``， which is significantly better than previous state-of-the-art approaches. Nevertheless, we use the commomly-used matlab code to evaluate the ``log-average miss rate`` for fair comparisons with other approaches.
 
 	cd ../../KAISTdevkit-matlab-wrapper
-
+	
 	run demo_test.m
- 
+
 Finally, you will get the result:
 
 |Methods|MR-All($\downarrow$)|MR-Day($\downarrow$)|MR-Night($\downarrow$)|MR-Near($\downarrow$)|MR-Medium($\downarrow$)|
@@ -174,7 +175,7 @@ ProbEn (ECCV2022)|640 x 512|93.4|51.5|
 For YOLOv5, 
 
 	python val.py --device 0 --data LLVIP.yaml --weights runs/train/modifiedDCN_MaskSup_negCorr_1024/weights/best.pt --batch-size 32 --img 1024 --conf-thres 0.008 --iou-thres 0.4 --exist-ok
-	
+
 Finally, you will get:
 	
 |Methods|AP.50($\uparrow$)|AP.75($\uparrow$)|AP($\uparrow$)|

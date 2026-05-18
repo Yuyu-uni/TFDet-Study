@@ -13,11 +13,11 @@ modality = 'lwir'
 load_RGBT = True
 
 # server configuration
-server = '3090'
+server = '3060'
 # check server
 assert server in ['2070', '3060', '3090']
 if server == '3060':
-    data_root = '/UsrFile/Usr3/zx/KAIST-Sanitized/coco_format'
+    data_root = '/home/yuyu/Code/MachineLearning/TFDet/datasets/kaist/zx-sanitized-kaist-keepPerson-fillNonPerson/coco_format'
 elif server == '2070':
     data_root = '/home/ivlab/new_home/zx/cross-modality-det/datasets/KAIST-Sanitized/coco_format'
 elif server == '3090':
@@ -247,21 +247,21 @@ data = dict(
         type=dataset_type,
         ann_file=f'{data_root}/{modality}_train.json',
         classes=classes,
-        img_prefix='/home/zx/cross-modality-det/datasets/zx-sanitized-kaist-keepPerson-fillNonPerson',
+        img_prefix='/home/yuyu/Code/MachineLearning/TFDet/datasets/kaist/zx-sanitized-kaist-keepPerson-fillNonPerson',
         pipeline=train_pipeline,
         filter_empty_gt=False),
     val=dict(
         type=dataset_type,
         ann_file=f'{data_root}/{modality}_test.json',
         classes=classes,
-        img_prefix='/home/zx/cross-modality-det/datasets/zx-sanitized-kaist-keepPerson-fillNonPerson',
+        img_prefix='/home/yuyu/Code/MachineLearning/TFDet/datasets/kaist/zx-sanitized-kaist-keepPerson-fillNonPerson',
         pipeline=test_pipeline,
         filter_empty_gt=False),
     test=dict(
         type=dataset_type,
         ann_file=f'{data_root}/{modality}_test.json',
         classes=classes,
-        img_prefix='/home/zx/cross-modality-det/datasets/zx-sanitized-kaist-keepPerson-fillNonPerson',
+        img_prefix='/home/yuyu/Code/MachineLearning/TFDet/datasets/kaist/zx-sanitized-kaist-keepPerson-fillNonPerson',
         pipeline=test_pipeline,
         filter_empty_gt=False))
 evaluation = dict(interval=1, metric='bbox', classwise=True)

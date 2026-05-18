@@ -1,0 +1,89 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+eggs/
+.eggs/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.env
+.venv
+venv/
+env/
+ENV/
+.venv*/
+
+# IDE / Editor
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Pyenv
+.python-version
+
+# Testing / coverage
+.pytest_cache/
+.mypy_cache/
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+.hypothesis/
+
+# ML model weights
+*.pth
+*.pt
+*.ckpt
+*.weights
+*.pb
+*.onnx
+*.engine
+*.mlmodel
+*.torchscript
+*.tflite
+*.h5
+*_saved_model/
+
+# Experiment tracking
+wandb/
+runs/
+work_dirs/
+
+# Logs
+*.log
+
+# Images (dataset files, typically large)
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.tif
+*.tiff
+
+# Dataset archives and media (large files)
+*.zip
+*.tar.gz
+*.tar
+*.avi
+*.mp4
+*.mov
+
+# Misc
+*.pkl
+*.mat
+*.m~

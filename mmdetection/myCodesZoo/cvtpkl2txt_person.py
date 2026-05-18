@@ -5,9 +5,9 @@ import shutil
 import torchvision.ops
 import torch
 
-os.environ['DISPLAY']='localhost:11.0'
+os.environ['DISPLAY']='localhost:11'
 import pickle
-from cv2 import cv2
+import cv2
 import numpy as np
 
 from mmdet.datasets import build_dataset
@@ -40,7 +40,7 @@ out_dir = osp.join(pkl_root, 'epoch_')
 if osp.isdir(out_dir):
     shutil.rmtree(out_dir)
 os.makedirs(out_dir, exist_ok=True)
-test_names = sorted(glob(osp.join('/home/zx/cross-modality-det/datasets/zx-sanitized-kaist-keepPerson-fillNonPerson/images/test_lwir', '*.png')))
+test_names = sorted(glob(osp.join('/home/yuyu/Code/MachineLearning/TFDet/datasets/kaist/zx-sanitized-kaist-keepPerson-fillNonPerson/images/test_lwir', '*.png')))
 # test_names = sorted(glob(osp.join('/home/zx/cross-modality-det/datasets/test_images/lwir/test', '*.jpg')))
 
 for epo in range(start_epoch, min(end_epoch+1, 130, start_epoch+len(glob(osp.join(pkl_root, '*.pkl'))))):
@@ -107,7 +107,7 @@ for epo in range(start_epoch, min(end_epoch+1, 130, start_epoch+len(glob(osp.joi
 
 
 from mr_evaluation_script.evaluation_script import evaluate
-annFile = '/home/zx/cross-modality-det/code/mmdetection/mr_evaluation_script/KAIST_annotation.json'
+annFile = '/home/yuyu/Code/MachineLearning/TFDet/mmdetection/mr_evaluation_script/KAIST_annotation.json'
 phase = "Multispectral"
 results = []
 for epo in range(start_epoch, min(end_epoch+1, 130, start_epoch+len(glob(osp.join(pkl_root, '*.pkl'))))):
